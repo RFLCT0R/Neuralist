@@ -243,8 +243,8 @@
                 { name: 'company', weight: 0.2 },
                 { name: 'shortDescription', weight: 0.2 },
                 { name: 'tags', weight: 0.1 },
-                { name: 'category', weight: 0.05 },
-                { name: 'subCategory', weight: 0.03 },
+                { name: 'categories.function', weight: 0.05 },
+                { name: 'categories.industry', weight: 0.03 },
                 { name: 'features', weight: 0.02 }
             ],
             threshold: 0.3,
@@ -388,17 +388,8 @@
             showSkeletonLoader();
 
             try {
-                const [response1, response2, response3] = await Promise.all([
-                    fetch('assets/data/tools1.json'),
-                    fetch('assets/data/tools2.json'),
-                    fetch('assets/data/tools3.json')
-                ]);
-                
-                const tools1 = await response1.json();
-                const tools2 = await response2.json();
-                const tools3 = await response3.json();
-                
-                allTools = [...tools1, ...tools2, ...tools3];
+                const response = await fetch('assets/data/tools1.json');
+                allTools = await response.json();
 
                 // Initialize Fuse.js
                 fuse = new Fuse(allTools, fuseOptions);
@@ -516,7 +507,7 @@
             // 2. Pricing filter
             if (filters.pricing !== 'all') {
                 results = results.filter(t => {
-                    const pricing = t.pricing.toLowerCase();
+                    const pricing = (t.categories?.pricing?.[0] || '').toLowerCase();
                     if (filters.pricing === 'trial') return pricing.includes('trial');
                     return pricing === filters.pricing;
                 });
@@ -524,7 +515,7 @@
 
             // 3. Free Only toggle
             if (filters.freeOnly) {
-                results = results.filter(t => t.pricing.toLowerCase() === 'free');
+                results = results.filter(t => (t.categories?.pricing?.[0] || '').toLowerCase() === 'free');
             }
 
             // 4. Category filter (OR logic - search within tool info)
@@ -532,13 +523,13 @@
                 results = results.filter(t => {
                     const toolText = [
                         t.name,
-                        t.category,
-                        t.subCategory,
+                        ...(t.categories?.function || []),
+                        ...(t.categories?.industry || []),
                         t.shortDescription,
-                        t.fullDescription,
+                        t.longDescription,
                         ...(t.features || []),
                         ...(t.tags || []),
-                        ...(t.useCases || [])
+                        ...(t.categories?.useCase || [])
                     ].join(' ').toLowerCase();
                     return filters.categories.some(cat => toolText.includes(cat.toLowerCase()));
                 });
@@ -641,7 +632,7 @@
             card.href = `tool.html?id=${tool.id}`;
             card.className = 'tool-card';
 
-            const pricingClass = getPricingClass(tool.pricing);
+            const pricingClass = getPricingClass(tool.categories?.pricing?.[0] || 'Free');
             const stars = tool.rating ? generateStars(tool.rating) : '';
             const ratingValue = tool.rating ? tool.rating.toFixed(1) : '';
             const reviewCount = tool.totalReviews ? formatReviewCount(tool.totalReviews) : '';
@@ -662,7 +653,7 @@
                         <div class="tool-card__rating-stars">${stars}</div>
                         <span class="tool-card__review-count">(${reviewCount})</span>
                     </div>
-                    <span class="tool-card__pricing ${pricingClass}">${tool.pricing}</span>
+                    <span class="tool-card__pricing ${pricingClass}">${tool.categories?.pricing?.[0] || 'Free'}</span>
                 </div>
             `;
 
