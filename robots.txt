@@ -1,4 +1,4 @@
-# robots.txt for Neuralist
+# robots.txt for Jabarai
 # AI Tools Directory
 # Last updated: 2026-01-20
 
@@ -11,4 +11,4 @@ Disallow: /private/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://Neuralist.com/sitemap.xml
+Sitemap: https://Jabarai.com/sitemap.xml

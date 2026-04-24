@@ -65,7 +65,7 @@ for i, (name, company, desc, funcs, pricing, platforms, use_cases, domain, ratin
         "releaseDate": "2022-01-01",
         "lastUpdated": "2025-12-01",
         "lastVerified": "2026-04-22",
-        "verifiedBy": "Neuralist Team",
+        "verifiedBy": "Jabarai Team",
         "rating": rating,
         "totalReviews": reviews,
         "pros": ["Easy to use", "AI-powered"],

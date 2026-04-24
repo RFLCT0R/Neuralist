@@ -201,7 +201,7 @@ def generate_tool(tool_def, index):
         "releaseDate": "2022-01-01",
         "lastUpdated": "2025-12-01",
         "lastVerified": "2026-04-22",
-        "verifiedBy": "Neuralist Team",
+        "verifiedBy": "Jabarai Team",
         "rating": round(4.2 + (index % 7) / 10, 1),
         "totalReviews": 1000 + (index * 500),
         "pros": ["Easy to use", "AI-powered features", "Good value"],

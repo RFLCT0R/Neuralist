@@ -1,2 +1,2 @@
-# Neuralist
+# Jabarai
 first site ever.

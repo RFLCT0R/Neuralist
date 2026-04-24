@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neuralist | Your AI tools hub</title>
+    <title>Jabarai | Your AI tools hub</title>
     <link rel="icon" type="image/png" href="assets/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 <body>
     <header class="toolbar">
         <a href="index.html" class="logo">
-            <span style="color: #1a1a1a;">Neuralist</span><span style="color: #0ea5e9;">.</span>
+            <span style="color: #1a1a1a;">Jabarai</span><span style="color: #0ea5e9;">.</span>
         </a>
         <nav class="nav-links">
             <a href="index.html">Home</a>
@@ -388,8 +388,13 @@
             showSkeletonLoader();
 
             try {
-                const response = await fetch('assets/data/tools1.json');
-                allTools = await response.json();
+                const [response1, response2] = await Promise.all([
+                    fetch('assets/data/tools1.json'),
+                    fetch('assets/data/tools2.json')
+                ]);
+                const tools1 = await response1.json();
+                const tools2 = await response2.json();
+                allTools = [...tools1, ...tools2];
 
                 // Initialize Fuse.js
                 fuse = new Fuse(allTools, fuseOptions);
@@ -975,7 +980,7 @@
             <div class="footer-main">
                 <div class="footer-brand">
                     <a href="index.html" class="footer-logo">
-                        <span style="color: #ffffff;">Neuralist</span><span style="color: #0ea5e9;">.</span>
+                        <span style="color: #ffffff;">Jabarai</span><span style="color: #0ea5e9;">.</span>
                     </a>
                     <p class="footer-tagline">Discover the best AI tools, all in one place.</p>
                 </div>
@@ -1005,7 +1010,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p class="footer-copyright">© 2026 Neuralist. All rights reserved.</p>
+                <p class="footer-copyright">© 2026 Jabarai. All rights reserved.</p>
                 <div class="footer-bottom-social">
                     <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
                     <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
