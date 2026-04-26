@@ -134,6 +134,7 @@ main {
     border-radius: 8px;
     border: none;
     cursor: pointer;
+    text-decoration: none;
     transition: background 0.2s;
 }
 
