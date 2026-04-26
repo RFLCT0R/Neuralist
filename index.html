@@ -383,15 +383,17 @@
             showSkeletonLoader();
 
             try {
-                const [response1, response2, response3] = await Promise.all([
+                const [response1, response2, response3, response4] = await Promise.all([
                     fetch('assets/data/tools1.json'),
                     fetch('assets/data/tools2.json'),
-                    fetch('assets/data/tools3.json')
+                    fetch('assets/data/tools3.json'),
+                    fetch('assets/data/tools4.json')
                 ]);
                 const tools1 = await response1.json();
                 const tools2 = await response2.json();
                 const tools3 = await response3.json();
-                allTools = [...tools1, ...tools2, ...tools3];
+                const tools4 = await response4.json();
+                allTools = [...tools1, ...tools2, ...tools3, ...tools4];
 
                 // Initialize Fuse.js
                 fuse = new Fuse(allTools, fuseOptions);
