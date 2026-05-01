@@ -2,12 +2,30 @@
    MyInfoPanel - Main Stylesheet
    ============================================ */
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Google Fonts - loaded via <link> in HTML, no @import needed */
 
 /* ============================================
    CSS Reset & Base Styles
    ============================================ */
+
+/* Skip to content link for keyboard navigation */
+.skip-to-content {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 9999;
+    padding: 12px 24px;
+    background: #1a1a1a;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 0 0 8px 0;
+}
+
+.skip-to-content:focus {
+    left: 0;
+}
 
 *, :after, :before {
     -webkit-box-sizing: border-box;
@@ -324,13 +342,57 @@ main {
         line-height: 26px;
     }
 
+    .toolbar {
+        padding: 0 16px;
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
+
+    .home-title {
+        padding: 16px 16px 12px;
+    }
+
     .home-title__subtitle {
         font-size: 26px;
+    }
+
+    .home-title__paragraph {
+        font-size: 16px;
     }
 
     .cards-section {
         grid-template-columns: 1fr;
         max-width: 400px;
+    }
+
+    .main-controls-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 0 16px;
+    }
+
+    .main-controls-row .search-section-compact {
+        justify-self: stretch;
+    }
+
+    .main-controls-row .filter-bar-container {
+        justify-self: stretch;
+        overflow-x: auto;
+    }
+
+    .center-info-vertical {
+        margin-top: 0;
+    }
+
+    .filter-bar-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .tools-pagination {
+        padding: 0 16px;
     }
 }
 
