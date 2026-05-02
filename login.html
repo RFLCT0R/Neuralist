@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="assets/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', Arial, sans-serif; }
         html, body {
@@ -146,7 +147,18 @@
             transition: background 0.2s;
         }
         .auth-button:hover {
-            background: #0ea5e9;
+            background: #0284c7;
+        }
+        .auth-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
         }
         .auth-footer {
             text-align: center;
@@ -217,7 +229,7 @@
                 <button class="social-btn github"><i class="fab fa-github"></i> GitHub</button>
             </div>
 
-            <form class="auth-form">
+            <form class="auth-form" id="login-form">
                 <div class="input-wrap">
                     <i class="fas fa-envelope"></i>
                     <input type="email" id="email" placeholder="Email" required>
@@ -227,14 +239,99 @@
                     <input type="password" id="password" placeholder="Password" required>
                 </div>
                 <div class="btn-wrap">
-                    <button type="submit" class="auth-button">Log in</button>
+                    <button type="submit" class="auth-button" id="submit-btn">Log in</button>
                 </div>
+                <div class="error-message" id="error-msg"></div>
             </form>
 
             <div class="auth-footer">
                 Don't have an account? <a href="register.html">Sign up</a>
             </div>
         </div>
+
+    <script src="assets/js/config.js"></script>
+    <script>
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(
+            SUPABASE_CONFIG.url,
+            SUPABASE_CONFIG.anonKey
+        );
+
+        const loginForm = document.getElementById('login-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorMsg = document.getElementById('error-msg');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Reset error message
+            errorMsg.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Store session in localStorage
+                if (data.session) {
+                    localStorage.setItem('supabase_session', JSON.stringify(data.session));
+                }
+                
+                // Redirect to home page after successful login
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                errorMsg.textContent = error.message || 'Invalid email or password. Please try again.';
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Log in';
+            }
+        });
+
+        // Social login handlers
+        document.querySelector('.social-btn.google').addEventListener('click', async () => {
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google'
+                });
+                if (error) throw error;
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        document.querySelector('.social-btn.github').addEventListener('click', async () => {
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'github'
+                });
+                if (error) throw error;
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
         <div class="split-right">
             <div class="right-image">
                 <img src="assets/images/sign_up_in2.png" alt="Jabarai illustration">

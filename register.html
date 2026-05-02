@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="assets/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', Arial, sans-serif; }
         html, body {
@@ -146,7 +147,25 @@
             transition: background 0.2s;
         }
         .auth-button:hover {
-            background: #0ea5e9;
+            background: #0284c7;
+        }
+        .auth-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        .success-message {
+            color: #10b981;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
         }
         .auth-footer {
             text-align: center;
@@ -218,7 +237,7 @@
                 <button class="social-btn github"><i class="fab fa-github"></i> GitHub</button>
             </div>
 
-            <form class="auth-form">
+            <form class="auth-form" id="register-form">
                 <div class="input-wrap">
                     <i class="fas fa-user"></i>
                     <input type="text" id="name" placeholder="Name" required>
@@ -229,11 +248,13 @@
                 </div>
                 <div class="input-wrap">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="password" placeholder="Password" required>
+                    <input type="password" id="password" placeholder="Password" required minlength="6">
                 </div>
                 <div class="btn-wrap">
-                    <button type="submit" class="auth-button">Sign up</button>
+                    <button type="submit" class="auth-button" id="submit-btn">Sign up</button>
                 </div>
+                <div class="error-message" id="error-msg"></div>
+                <div class="success-message" id="success-msg"></div>
             </form>
 
             <div class="auth-footer">
@@ -241,6 +262,90 @@
                 By creating an account, you agree to Jabarai <a href="terms-of-use.html">Terms of Service</a> and <a href="privacy-policy.html">Privacy Policy</a>
             </div>
         </div>
+
+    <script src="assets/js/config.js"></script>
+    <script>
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(
+            SUPABASE_CONFIG.url,
+            SUPABASE_CONFIG.anonKey
+        );
+
+        const registerForm = document.getElementById('register-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorMsg = document.getElementById('error-msg');
+        const successMsg = document.getElementById('success-msg');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Reset messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Signing up...';
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: name
+                        }
+                    }
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                successMsg.textContent = 'Registration successful! Please check your email to confirm your account.';
+                successMsg.style.display = 'block';
+                
+                // Redirect to login after 3 seconds
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 3000);
+                
+            } catch (error) {
+                errorMsg.textContent = error.message || 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign up';
+            }
+        });
+
+        // Social login handlers
+        document.querySelector('.social-btn.google').addEventListener('click', async () => {
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google'
+                });
+                if (error) throw error;
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        document.querySelector('.social-btn.github').addEventListener('click', async () => {
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'github'
+                });
+                if (error) throw error;
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
         <div class="split-right">
             <div class="right-image">
                 <img src="assets/images/sign_up_in2.png" alt="Jabarai illustration">

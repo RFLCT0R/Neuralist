@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/footer-components.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/savedTools.js"></script>
     <style>
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; background: #ffffff !important; background-image: none !important; }
 
@@ -230,6 +234,17 @@
             border-color: var(--accent);
             background: #f8f8f8;
             transform: translateY(-2px);
+        }
+
+        .cv-header-actions .cv-btn-secondary.saved {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .cv-header-actions .cv-btn-secondary.saved:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
         }
 
         /* CV Grid Layout */
@@ -1263,9 +1278,9 @@
             <span style="color: #1a1a1a;">Jabarai</span><span style="color: #0ea5e9;">.</span>
         </a>
         <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
+            <a href="about.html">our story</a>
+            <a href="contact.html">contact us</a>
+            <a href="help_us.html">help us</a>
         </nav>
         <div class="nav-actions">
             <a href="register.html" class="btn-signup">Get Started</a>
@@ -1292,6 +1307,8 @@
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li><a href="index2.html">Welcome</a></li>
+                        <li><a href="about.html">Our Story</a></li>
+                        <li><a href="help_us.html">Support Us</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -1390,7 +1407,7 @@
                             </div>
                             <div class="cv-header-actions">
                                 <a href="${tool.websiteUrl}" target="_blank" class="cv-btn-primary">Visit Website</a>
-                                <button class="cv-btn-secondary" id="save-tool-btn" title="Save this tool"><i></i>Save tool</button>
+                                <button class="cv-btn-secondary" id="save-tool-btn" onclick="handleToolPageSave()">Save to library</button>
                                 <a href="javascript:history.back()" class="cv-btn-secondary">Back</a>
                             </div>
                         </div>
@@ -1644,7 +1661,59 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadTool();
             initBackToTop();
+
+            // Initialize save button state
+            initSaveButton();
         });
+
+        // Get current tool ID from URL
+        function getToolIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Initialize save button (check if tool is already saved)
+        async function initSaveButton() {
+            const toolId = getToolIdFromUrl();
+            if (!toolId) return;
+
+            const isSaved = await isToolSaved(toolId);
+            updateSaveButtonUI(isSaved);
+        }
+
+        // Update save button appearance
+        function updateSaveButtonUI(isSaved) {
+            const btn = document.getElementById('save-tool-btn');
+            if (!btn) return;
+
+            if (isSaved) {
+                btn.textContent = 'Saved to library';
+                btn.classList.add('saved');
+            } else {
+                btn.textContent = 'Save to library';
+                btn.classList.remove('saved');
+            }
+        }
+
+        // Handle save/unsave on tool page - calm, no alerts
+        async function handleToolPageSave() {
+            const toolId = getToolIdFromUrl();
+            if (!toolId) return;
+
+            const { saved, error } = await toggleSaveTool(toolId);
+
+            if (error === 'Not authenticated') {
+                window.location.href = 'register.html';
+                return;
+            }
+
+            if (error) {
+                console.error('Error saving tool:', error);
+                return;
+            }
+
+            updateSaveButtonUI(saved);
+        }
     </script>
 </body>
 </html>
