@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account | Jabarai</title>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/footer-components.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/savedTools.js"></script>
+    <style>
+        :root {
+            --accent: #0ea5e9;
+            --accent-dark: #0284c7;
+            --accent-light: #e0f2fe;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --sidebar-w: 260px;
+            --toolbar-h: 64px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            height: calc(100vh - var(--toolbar-h));
+            position: fixed;
+            top: var(--toolbar-h);
+            left: 0;
+            overflow-y: auto;
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .sidebar-user {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .sidebar-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(14,165,233,0.3);
+        }
+
+        .sidebar-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-user-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sidebar-user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-user-email {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 12px;
+        }
+
+        .sidebar-nav-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 16px 12px 8px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-nav a:hover {
+            background: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--accent-light);
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            width: 18px;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .sidebar-nav a.active i {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .sidebar-footer {
+            padding: 12px 12px 20px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-footer a:hover {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        .sidebar-footer a i {
+            width: 18px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* ─── MAIN CONTENT ─── */
+        .main {
+            margin-left: var(--sidebar-w);
+            padding: 40px 48px 60px;
+            min-height: calc(100vh - var(--toolbar-h));
+        }
+
+        /* Section Header */
+        .section-header {
+            margin-bottom: 32px;
+        }
+
+        .section-header-overline {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .section-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: white;
+            box-shadow: 0 4px 20px rgba(14,165,233,0.25);
+        }
+
+        .hero-banner-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-banner-icon i { font-size: 26px; color: white; }
+
+        .hero-banner h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .hero-banner p {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.92;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1100px) {
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .card-badge--accent {
+            background: var(--accent-light);
+            color: var(--accent-dark);
+        }
+
+        .card-badge--green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .card-badge--red {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .card-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.15s;
+        }
+
+        .card-link:hover { opacity: 0.8; }
+
+        /* Field Rows */
+        .field-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .field-row:last-child { border-bottom: none; }
+
+        .field-label {
+            width: 120px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .field-value {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Info Block */
+        .info-block {
+            padding: 16px;
+            background: var(--border-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+        }
+
+        .info-block:last-child { margin-bottom: 0; }
+
+        .info-block-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .info-block-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Status Dot */
+        .status-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .status-dot--on::before { background: #22c55e; }
+        .status-dot--off::before { background: #d1d5db; }
+
+        .status-dot--on { color: #166534; }
+        .status-dot--off { color: var(--text-muted); }
+
+        /* Theme Cards */
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .theme-option {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .theme-option:hover { transform: translateY(-2px); }
+
+        .theme-preview {
+            height: 90px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .theme-preview i { font-size: 28px; }
+
+        .theme-option.selected .theme-preview {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(14,165,233,0.15);
+        }
+
+        .theme-option-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .theme-option-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .theme-descriptions {
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .theme-descriptions p {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .theme-descriptions strong {
+            color: var(--text-primary);
+        }
+
+        /* Saved Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+
+        .tools-count {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--border-light);
+            padding: 5px 14px;
+            border-radius: 20px;
+        }
+
+        /* Modal Dialog */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #fef2f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .modal-icon i {
+            font-size: 24px;
+            color: #dc2626;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s ease;
+        }
+
+        .modal-btn--secondary {
+            background: var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn--secondary:hover {
+            background: var(--border);
+        }
+
+        .modal-btn--primary {
+            background: #dc2626;
+            color: white;
+        }
+
+        .modal-btn--primary:hover {
+            background: #b91c1c;
+        }
+
+        /* Notification Item */
+        .notif-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .notif-item:last-child { border-bottom: none; }
+
+        .notif-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .notif-item-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        /* Privacy Card */
+        .privacy-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .privacy-card:hover { box-shadow: var(--shadow-sm); }
+
+        .privacy-card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-bottom: 16px;
+        }
+
+        .privacy-card-icon i {
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .privacy-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .privacy-card p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Social */
+        .social-connected {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: var(--border-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+        }
+
+        .social-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: white;
+            border: 1px solid var(--border);
+        }
+
+        .social-email {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 0;
+        }
+
+        .social-btn:hover {
+            background: var(--border-light);
+            border-color: #cbd5e1;
+        }
+
+        .social-btn i { font-size: 15px; color: var(--text-secondary); }
+
+        .social-btn.facebook {
+            background: #1877f2;
+            border-color: #1877f2;
+        }
+
+        .social-btn.facebook i { color: white; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+            }
+            .main { margin-left: 0; padding: 24px 20px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .theme-options { grid-template-columns: 1fr; }
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="toolbar">
+        <a href="index.html" class="logo">
+            <span style="color: #0f172a;">Jabarai</span><span style="color: var(--accent);">.</span>
+        </a>
+        <nav class="nav-links">
+            <a href="about.html">our story</a>
+            <a href="contact.html">contact us</a>
+            <a href="help_us.html">help us</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="register.html" class="btn-signup">Get Started</a>
+        </div>
+    </header>
+
+    <main style="display: flex; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 64px);">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-user">
+                <div class="sidebar-user-row">
+                    <div class="sidebar-avatar" id="sidebar-avatar">
+                        <span id="sidebar-initial">?</span>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="sidebar-user-name" id="sidebar-name">Loading...</div>
+                        <div class="sidebar-user-email" id="sidebar-email"></div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-label">Account</div>
+                <a href="#" class="active" onclick="showSection('profile'); return false;"><i class="far fa-user-circle"></i> Profile</a>
+                <a href="#" onclick="showSection('security'); return false;"><i class="fas fa-lock"></i> Security</a>
+                <a href="#" onclick="showSection('saved-tools'); return false;"><i class="far fa-bookmark"></i> Saved Tools</a>
+                <a href="#" onclick="showSection('appearance'); return false;"><i class="fas fa-palette"></i> Appearance</a>
+                <a href="#" onclick="showSection('notifications'); return false;"><i class="far fa-bell"></i> Notifications</a>
+                <a href="#" onclick="showSection('language'); return false;"><i class="fas fa-globe"></i> Language</a>
+                <a href="#" onclick="showSection('privacy'); return false;"><i class="fas fa-shield-alt"></i> Privacy</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" onclick="showLogoutModal(); return false;"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            </div>
+        </aside>
+
+        <!-- Logout Modal -->
+        <div id="logout-modal" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-icon">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <h3 class="modal-title">Log Out</h3>
+                <p class="modal-message">Are you sure you want to log out? You will be redirected to the home page.</p>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn--secondary" onclick="hideLogoutModal()">Cancel</button>
+                    <button class="modal-btn modal-btn--primary" onclick="confirmLogout()">Log Out</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+
+            <!-- ═══ PROFILE ═══ -->
+            <div id="profile-section">
+                <div class="section-header">
+                    <div class="section-header-overline">My account</div>
+                    <h1>Profile</h1>
+                </div>
+
+                <div class="hero-banner">
+                    <div class="hero-banner-icon"><i class="far fa-user-circle"></i></div>
+                    <div>
+                        <h3>Your personal information</h3>
+                        <p>Manage your profile details and connected accounts. Keep your information up to date for a better experience.</p>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Personal Info</span>
+                            <a href="#" class="card-link">Edit</a>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">First name</span>
+                            <span class="field-value" id="profile-first-name">—</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Last name</span>
+                            <span class="field-value" id="profile-last-name">—</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Country</span>
+                            <span class="field-value" id="profile-country">Not set</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Timezone</span>
+                            <span class="field-value" id="profile-timezone">UTC</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Connected Accounts</span>
+                        </div>
+                        <div class="social-connected">
+                            <div class="social-icon"><i class="fab fa-google" style="font-size: 16px; color: #4285f4;"></i></div>
+                            <span class="social-email" id="social-email">—</span>
+                        </div>
+                        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">Link social accounts for quick sign-in. You can connect multiple providers to your account.</p>
+                        <div class="social-buttons">
+                            <button class="social-btn facebook"><i class="fab fa-facebook-f"></i></button>
+                            <button class="social-btn google"><i class="fab fa-google"></i></button>
+                            <button class="social-btn"><i class="fas fa-user-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECURITY ═══ -->
+            <div id="security-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-header-overline">My account</div>
+                    <h1>Security</h1>
+                </div>
+
+                <div class="hero-banner">
+                    <div class="hero-banner-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div>
+                        <h3>Protect your account</h3>
+                        <p>Security is essential to keep your data and saved tools safe. Enable two-factor authentication and use a strong password.</p>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Password</span>
+                            <a href="#" class="card-link">Create</a>
+                        </div>
+                        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Create a strong, unique password to protect your account from unauthorized access.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Two-Factor Auth</span>
+                            <a href="#" class="card-link">Enable</a>
+                        </div>
+                        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">Add an extra layer of security with a verification code from your phone.</p>
+                        <span class="status-dot status-dot--off">Not enabled</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SAVED TOOLS ═══ -->
+            <div id="saved-tools-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-header-overline">My account</div>
+                    <h1>Saved Tools</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <span class="card-title">My Collection</span>
+                        <span class="card-badge" id="tools-count-badge">1 tool</span>
+                    </div>
+                    <div class="tools-grid" id="saved-tools-grid">
+                        <!-- Tools will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ APPEARANCE ═══ -->
+            <div id="appearance-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-header-overline">My account</div>
+                    <h1>Appearance</h1>
+                </div>
+
+                <div class="hero-banner">
+                    <div class="hero-banner-icon"><i class="fas fa-palette"></i></div>
+                    <div>
+                        <h3>Customize your experience</h3>
+                        <p>Choose a theme that suits your style and environment. Your preference will be saved and applied across all devices.</p>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card" style="grid-column: 1 / -1;">
+                        <div class="card-head">
+                            <span class="card-title">Choose your theme</span>
+                        </div>
+
+                        <div class="theme-options">
+                            <div class="theme-option selected" onclick="setTheme('light')">
+                                <div class="theme-preview" id="theme-light" style="background: linear-gradient(135deg, #fff 0%, #f1f5f9 100%);">
+                                    <i class="fas fa-sun" style="color: #fbbf24;"></i>
+                                </div>
+                                <div class="theme-option-name">Light</div>
+                                <div class="theme-option-desc">Clean and bright</div>
+                            </div>
+                            <div class="theme-option" onclick="setTheme('dim')">
+                                <div class="theme-preview" id="theme-dim" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
+                                    <i class="fas fa-cloud" style="color: #9ca3af;"></i>
+                                </div>
+                                <div class="theme-option-name">Dim</div>
+                                <div class="theme-option-desc">Easier on the eyes</div>
+                            </div>
+                            <div class="theme-option" onclick="setTheme('dark')">
+                                <div class="theme-preview" id="theme-dark" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                                    <i class="fas fa-moon" style="color: #fbbf24;"></i>
+                                </div>
+                                <div class="theme-option-name">Dark</div>
+                                <div class="theme-option-desc">Best for low light</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ NOTIFICATIONS ═══ -->
+            <div id="notifications-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-header-overline">My account</div>
+                    <h1>Notifications</h1>
+                </div>
+
+                <div class="hero-banner">
+                    <div class="hero-banner-icon"><i class="fas fa-bell"></i></div>
+                    <div>
+                        <h3>Stay informed</h3>
+                        <p>Choose what notifications you want to receive. You can change these settings at any time to control your experience.</p>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Email Notifications</span>
+                            <span class="card-badge card-badge--accent">Enabled</span>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-item-title">New AI tools</div>
+                            <div class="notif-item-desc">Get notified when we add new tools to our collection.</div>
+                            <span class="status-dot status-dot--on">Enabled</span>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-item-title">Product updates</div>
+                            <div class="notif-item-desc">News about features, improvements, and announcements.</div>
+                            <span class="status-dot status-dot--on">Enabled</span>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-item-title">Marketing & promotions</div>
+                            <div class="notif-item-desc">Special offers and promotional content from partners.</div>
+                            <span class="status-dot status-dot--off">Disabled</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Push Notifications</span>
+                            <span class="card-badge card-badge--green">Active</span>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-item-title">Browser notifications</div>
+                            <div class="notif-item-desc">Instant notifications in your browser for important updates.</div>
+                            <span class="status-dot status-dot--on">Enabled</span>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-item-title">Saved tool alerts</div>
+                            <div class="notif-item-desc">Updates or changes to tools you've saved.</div>
+                            <span class="status-dot status-dot--on">Enabled</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ LANGUAGE ═══ -->
+            <div id="language-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-header-overline">My account</div>
+                    <h1>Language & Region</h1>
+                </div>
+
+                <div class="hero-banner">
+                    <div class="hero-banner-icon"><i class="fas fa-globe"></i></div>
+                    <div>
+                        <h3>English is currently the only available language</h3>
+                        <p>We're working on adding more languages to make Jabarai accessible to everyone. French, Arabic, Spanish, and more coming soon.</p>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Language Settings</span>
+                            <span class="card-badge card-badge--accent">English</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Interface</span>
+                            <span class="field-value">🇺🇸 English (US)</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Content</span>
+                            <span class="field-value">Same as interface</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Status</span>
+                            <span class="field-value" style="color: var(--accent); font-weight: 600;">English only — More coming soon</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ═══ PRIVACY ═══ -->
+            <div id="privacy-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-header-overline">My account</div>
+                    <h1>Privacy</h1>
+                </div>
+
+                <div class="hero-banner">
+                    <div class="hero-banner-icon"><i class="fas fa-user-shield"></i></div>
+                    <div>
+                        <h3>Your privacy matters</h3>
+                        <p>We take your privacy seriously. Your personal information is encrypted and never shared with third parties without your explicit consent.</p>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div>
+                        <div class="privacy-card">
+                            <div class="privacy-card-icon"><i class="fas fa-lock"></i></div>
+                            <h3>Data Protection</h3>
+                            <p>All your data is stored securely using industry-standard encryption. We use SSL/TLS for all data transfers and AES-256 for data at rest. Your saved tools, search history, and personal info are only accessible to you.</p>
+                        </div>
+                        <div class="privacy-card">
+                            <div class="privacy-card-icon"><i class="fas fa-eye"></i></div>
+                            <h3>Profile Visibility</h3>
+                            <p>Your profile is currently set to public, meaning other users can see your saved tools collection and basic profile info. You have full control and can adjust these settings at any time.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="privacy-card">
+                            <div class="privacy-card-icon"><i class="fas fa-download"></i></div>
+                            <h3>Your Data Rights</h3>
+                            <p>You have the right to access, download, or delete your personal data at any time. We believe in data transparency and giving you full control over your information.</p>
+                        </div>
+                        <div class="privacy-card">
+                            <div class="privacy-card-icon"><i class="fas fa-trash-alt"></i></div>
+                            <h3>Account Deletion</h3>
+                            <p>If you choose to delete your account, all your data will be permanently removed from our servers within 30 days. This action is irreversible.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(
+            SUPABASE_CONFIG.url,
+            SUPABASE_CONFIG.anonKey
+        );
+
+        let currentUser = null;
+        let allTools = [];
+
+        // ─── Load User Info ───
+        async function loadUserInfo() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+            const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+            const email = user.email || '';
+            const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+
+            const nameParts = fullName.split(' ');
+            const firstName = nameParts[0] || '-';
+            const lastName = nameParts.slice(1).join(' ') || '-';
+            const initial = firstName.charAt(0).toUpperCase();
+
+            // Sidebar
+            document.getElementById('sidebar-initial').textContent = initial;
+            document.getElementById('sidebar-name').textContent = fullName;
+            document.getElementById('sidebar-email').textContent = email;
+
+            // Avatar image
+            const sidebarAvatar = document.getElementById('sidebar-avatar');
+            if (avatarUrl) {
+                const img = document.createElement('img');
+                img.src = avatarUrl;
+                img.alt = fullName;
+                img.onerror = function() {
+                    sidebarAvatar.innerHTML = '<span id="sidebar-initial">' + initial + '</span>';
+                };
+                sidebarAvatar.innerHTML = '';
+                sidebarAvatar.appendChild(img);
+            }
+
+            // Profile fields
+            const firstNameDisplay = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : firstName;
+            const lastNameDisplay = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '—';
+            document.getElementById('profile-first-name').textContent = firstNameDisplay;
+            document.getElementById('profile-last-name').textContent = lastNameDisplay;
+            document.getElementById('social-email').textContent = email;
+
+            loadSavedTools();
+        }
+
+        // ─── Load Tools Data ───
+        async function loadToolsData() {
+            try {
+                const response = await fetch('assets/data/tools1.json');
+                const data = await response.json();
+                allTools = data;
+            } catch (error) {
+                console.error('Error loading tools:', error);
+            }
+        }
+
+        // ─── Load Saved Tools ───
+        async function loadSavedTools() {
+            await loadToolsData();
+
+            const { data: savedToolRecords, error } = await getSavedTools();
+
+            if (error) {
+                console.error('Error loading saved tools:', error);
+                return;
+            }
+
+            const savedToolIds = savedToolRecords.map(record => record.tool_id);
+            let savedTools = allTools.filter(tool => savedToolIds.includes(tool.id));
+
+            // Always include Jabarai tool
+            const jabaraiTool = allTools.find(tool => tool.name === 'Jabarai') || allTools[0];
+            if (jabaraiTool && !savedTools.find(tool => tool.id === jabaraiTool.id)) {
+                savedTools.unshift(jabaraiTool);
+            }
+
+            const grid = document.getElementById('saved-tools-grid');
+            const countBadge = document.getElementById('tools-count-badge');
+
+            grid.style.display = 'grid';
+            countBadge.textContent = savedTools.length + ' tool' + (savedTools.length !== 1 ? 's' : '');
+            renderSavedTools(savedTools);
+        }
+
+        // ─── Render Saved Tools ───
+        function renderSavedTools(tools) {
+            const grid = document.getElementById('saved-tools-grid');
+            grid.innerHTML = '';
+
+            tools.forEach(tool => {
+                const card = createToolCard(tool);
+                grid.appendChild(card);
+            });
+        }
+
+        // ─── Create Tool Card ───
+        function createToolCard(tool) {
+            const card = document.createElement('a');
+            card.href = 'tool.html?id=' + tool.id;
+            card.className = 'tool-card';
+            card.style.position = 'relative';
+
+            const pricingClass = getPricingClass(tool.categories?.pricing?.[0] || 'Free');
+            const stars = tool.rating ? generateStars(tool.rating) : '';
+            const ratingValue = tool.rating ? tool.rating.toFixed(1) : '';
+            const reviewCount = tool.totalReviews ? formatReviewCount(tool.totalReviews) : '';
+
+            card.innerHTML = `
+                <div class="tool-card__top">
+                    <img src="${tool.logo}" alt="${tool.name}" class="tool-card__logo" loading="lazy" onerror="this.src='assets/images/logo.png'">
+                    <div class="tool-card__divider-vertical"></div>
+                    <div class="tool-card__header">
+                        <h3 class="tool-card__name">${tool.name}</h3>
+                        <p class="tool-card__company">by ${tool.company}</p>
+                    </div>
+                </div>
+                <p class="tool-card__description">${tool.shortDescription}</p>
+                <div class="tool-card__footer">
+                    <div class="tool-card__rating">
+                        <span class="tool-card__rating-value">${ratingValue}</span>
+                        <div class="tool-card__rating-stars">${stars}</div>
+                        <span class="tool-card__review-count">(${reviewCount})</span>
+                    </div>
+                    <span class="tool-card__pricing ${pricingClass}">${tool.categories?.pricing?.[0] || 'Free'}</span>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // ─── Helper Functions ───
+        function getPricingClass(pricing) {
+            const p = pricing.toLowerCase();
+            if (p.includes('free') && !p.includes('paid')) return 'pricing-free';
+            if (p.includes('freemium')) return 'pricing-freemium';
+            if (p.includes('paid')) return 'pricing-paid';
+            return 'pricing-free';
+        }
+
+        function generateStars(rating) {
+            const full = Math.floor(rating);
+            const dec = rating % 1;
+            let html = '';
+            for (let i = 0; i < full; i++) html += '<span class="star filled">★</span>';
+            if (dec >= 0.5) html += '<span class="star half">★</span>';
+            const empty = 5 - Math.ceil(rating);
+            for (let i = 0; i < empty; i++) html += '<span class="star">★</span>';
+            return html;
+        }
+
+        function formatReviewCount(count) {
+            if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
+            if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
+            return count.toString();
+        }
+
+        // ─── Set Theme ───
+        function setTheme(theme) {
+            document.body.classList.remove('theme-light', 'theme-dim', 'theme-dark');
+            document.body.classList.add('theme-' + theme);
+            localStorage.setItem('theme', theme);
+
+            document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('selected'));
+            const selected = document.querySelector('.theme-option[onclick="setTheme(\'' + theme + '\')"]');
+            if (selected) selected.classList.add('selected');
+        }
+
+        // ─── Modal Dialog ───
+        function showLogoutModal() {
+            document.getElementById('logout-modal').classList.add('show');
+        }
+
+        function hideLogoutModal() {
+            document.getElementById('logout-modal').classList.remove('show');
+        }
+
+        function confirmLogout() {
+            hideLogoutModal();
+            signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        // ─── Show Section ───
+        function showSection(section) {
+            const sections = {
+                'profile': document.getElementById('profile-section'),
+                'security': document.getElementById('security-section'),
+                'saved-tools': document.getElementById('saved-tools-section'),
+                'appearance': document.getElementById('appearance-section'),
+                'notifications': document.getElementById('notifications-section'),
+                'language': document.getElementById('language-section'),
+                'privacy': document.getElementById('privacy-section')
+            };
+
+            const menuLinks = document.querySelectorAll('.sidebar-nav a');
+
+            Object.values(sections).forEach(s => s.style.display = 'none');
+            menuLinks.forEach(link => link.classList.remove('active'));
+
+            if (sections[section]) {
+                sections[section].style.display = 'block';
+            }
+
+            const indexMap = {
+                'profile': 0, 'security': 1, 'saved-tools': 2, 'appearance': 3,
+                'notifications': 4, 'language': 5, 'privacy': 6
+            };
+
+            if (menuLinks[indexMap[section]]) {
+                menuLinks[indexMap[section]].classList.add('active');
+            }
+
+            // Save active section to localStorage
+            localStorage.setItem('activeSection', section);
+        }
+
+        // ─── Restore Section on Load ───
+        function restoreActiveSection() {
+            const savedSection = localStorage.getItem('activeSection') || 'profile';
+            showSection(savedSection);
+        }
+
+        // ─── Dark Mode Check ───
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // ─── Init ───
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserInfo();
+            restoreActiveSection();
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTimeout(() => setTheme(savedTheme), 100);
+        });
+    </script>
+</body>
+</html>
