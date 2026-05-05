@@ -1352,11 +1352,11 @@
                 return;
             }
             try {
-                const jsonFiles = ['tools1.json','tools2.json','tools3.json','tools4.json','tools5.json','tools6.json','tools7.json','tools8.json','tools9.json','tools10.json'];
-                const toolsData = await Promise.all(
-                    jsonFiles.map(file => fetch(`assets/data/${file}`).then(r => r.json()).catch(() => []))
-                );
-                const tools = toolsData.flat();
+                const response = await fetch('assets/data/tools.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load tools: ' + response.status + ' ' + response.statusText);
+                }
+                const tools = await response.json();
                 const tool = tools.find(t => t.id === id || t.slug === id);
                 if (!tool) {
                     document.querySelector('.tool-container').innerHTML = '<p style="text-align:center;color:#888;padding:40px;">Tool not found.</p>';
@@ -1393,7 +1393,7 @@
                     <div class="cv-header">
                         <div class="cv-header-top">
                             <div class="cv-logo-wrapper">
-                                <img src="${tool.logo}" alt="${tool.name}" class="cv-logo" onerror="this.src='assets/images/logo.png'">
+                                <img src="${tool.logo}" alt="${tool.name}" class="cv-logo" onerror="this.src='assets/images/logo.png'" loading="lazy">
                             </div>
                             <div class="cv-header-main">
                                 <h1 class="cv-name">${tool.name}</h1>
@@ -1613,7 +1613,7 @@
                         <div class="cv-alts">
                             ${alts.map(a => `
                             <a href="tool.html?id=${a.slug}" class="cv-alt">
-                                <img src="${tools.find(t => t.slug === a.slug)?.logo || 'assets/images/logo.png'}" alt="${a.name}">
+                                <img src="${tools.find(t = loading="lazy"> t.slug === a.slug)?.logo || 'assets/images/logo.png'}" alt="${a.name}">
                                 <div class="cv-alt-info">
                                     <h4>${a.name}</h4>
                                     <p><i class="fas fa-arrow-right-arrow-left" style="margin-right:4px;font-size:10px"></i> ${a.why || 'Alternative'}</p>
@@ -1631,8 +1631,9 @@
                 document.title = `${tool.name} - Jabarai`;
                 document.querySelector('meta[name="description"]')?.setAttribute('content', tool.shortDescription || `${tool.name} by ${tool.company} - AI tool review and details.`);
             } catch(e) {
-                console.error(e);
-                document.querySelector('.tool-container').innerHTML = '<p style="text-align:center;color:#888;padding:40px;">Error loading tool.</p>';
+                console.error('Tool load error:', e);
+                console.error('Error stack:', e.stack);
+                document.querySelector('.tool-container').innerHTML = '<p style="text-align:center;color:#888;padding:40px;">Error loading tool: ' + e.message + '</p>';
             }
         }
 

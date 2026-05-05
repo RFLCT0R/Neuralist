@@ -1,7 +1,6 @@
-import json
+﻿import json
 import os
 from datetime import datetime
-
 
 def load_env():
     try:
@@ -13,7 +12,6 @@ def load_env():
                     os.environ.setdefault(key.strip(), value.strip())
     except FileNotFoundError:
         pass
-
 
 load_env()
 
@@ -90,7 +88,7 @@ tools_definitions = [
     ("Writer", "Writer.com", "AI writing for enterprises", ["Writing"], ["Paid"], ["Web"], ["Enterprise Writing"], "writer.com"),
     ("WriterZen", "WriterZen", "AI content workflow tool", ["SEO", "Writing"], ["Paid"], ["Web"], ["Keyword Research", "SEO"], "writerzen.net"),
     ("Midjourney", "Midjourney", "AI image generation", ["Image Generation"], ["Paid"], ["Web", "Discord"], ["Art Creation", "Design"], "midjourney.com"),
-    ("DALL·E 3", "OpenAI", "AI image generation by OpenAI", ["Image Generation"], ["Freemium"], ["Web"], ["Image Generation", "Design"], "openai.com"),
+    ("DALLÂ·E 3", "OpenAI", "AI image generation by OpenAI", ["Image Generation"], ["Freemium"], ["Web"], ["Image Generation", "Design"], "openai.com"),
     ("Stable Diffusion", "Stability AI", "Open-source AI image generation", ["Image Generation"], ["Free"], ["Web", "API"], ["Image Generation", "Art"], "stability.ai"),
     
     # 71-80: Image Generation & Editing
@@ -121,7 +119,7 @@ tools_definitions = [
 def generate_tool(tool_def, index):
     name, company, desc_short, functions, pricing, platforms, use_cases, domain = tool_def
     
-    slug = name.lower().replace(' ', '-').replace('.', '').replace('·', '')
+    slug = name.lower().replace(' ', '-').replace('.', '').replace('Â·', '')
     
     # Generate pricing details
     pricing_details = []
@@ -244,14 +242,15 @@ for i, tool_def in enumerate(tools_definitions, 11):
         print(f"Error generating tool {i}: {e}")
 
 # Read existing tools
-with open('assets/data/tools1.json', 'r', encoding='utf-8') as f:
+with open('assets/data/tools.json', 'r', encoding='utf-8') as f:
     existing_tools = json.load(f)
 
 # Combine
 all_tools = existing_tools + generated_tools
 
 # Write back
-with open('assets/data/tools1.json', 'w', encoding='utf-8') as f:
+with open('assets/data/tools.json', 'w', encoding='utf-8') as f:
     json.dump(all_tools, f, indent=2, ensure_ascii=False)
 
 print(f"Added {len(generated_tools)} new tools. Total: {len(all_tools)} tools")
+
